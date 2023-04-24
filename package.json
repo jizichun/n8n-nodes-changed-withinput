@@ -1,10 +1,10 @@
 {
-  "name": "n8n-nodes-changed",
-  "version": "0.2.0",
+  "name": "n8n-nodes-changed-withinput",
+  "version": "0.1.0",
   "private": false,
   "description": "n8n node to detect if something changed between the current execution and the previous one.",
   "license": "MIT",
-  "homepage": "https://github.com/naskio/n8n-nodes-changed",
+  "homepage": "https://github.com/jizichun/n8n-nodes-changed-withinput",
   "author": {
     "name": "Mehdi Nassim KHODJA",
     "email": "contact@nask.io",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/naskio/n8n-nodes-changed.git"
+    "url": "git+https://github.com/jizichun/n8n-nodes-changed-withinput.git"
   },
   "keywords": [
     "n8n",
