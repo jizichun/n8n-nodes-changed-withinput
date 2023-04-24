@@ -6,6 +6,7 @@ import {
 	IWorkflowMetadata,
 	INode, IDataObject,
 } from 'n8n-workflow';
+import { stringify } from 'querystring';
 
 const hash = require('object-hash');
 
@@ -33,15 +34,24 @@ export class Changed implements INodeType {
 				description: 'When there is no previous execution, this value will define if has changed or not.',
 				// noDataExpression: true,
 			},
+			{
+				displayName: 'Compared Input',
+				name: 'compare',
+				type: 'string',
+				required: false,
+				default: 'all',
+				description: 'Spcific items in the feed to compare changes, default will compare every item.',
+			},
 		],
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-
-		const items: INodeExecutionData[] = this.getInputData();
-		let returnAllData: INodeExecutionData[] = items;
+		const compare = this.getNodeParameter('compare',0);
+		const items:INodeExecutionData[] = this.getInputData();
+		let returnAllData:INodeExecutionData[] = items;
 		const returnNoData: INodeExecutionData[] = [];
-
+		
+		
 		const defaultValue = this.getNodeParameter('defaultValue', 0) as boolean;
 		// const mode: WorkflowExecuteMode = this.getMode();
 		const workflowMetadata: IWorkflowMetadata = this.getWorkflow();
@@ -58,21 +68,49 @@ export class Changed implements INodeType {
 		staticData.hashesIndex = staticData.hashesIndex || {};
 		const hashesIndex = staticData.hashesIndex as IDataObject;
 
-		let compareResult: boolean;
-		const oldHash = hashesIndex[nodeHash] as string;
-		const newHash = hash(items.map(item => item.json));
-		if (!oldHash) {
-			compareResult = defaultValue;
-			hashesIndex[nodeHash] = newHash; // first time, we have no previous hash
-		} else {
-			compareResult = newHash !== oldHash;
-		}
+		if(compare == 'all'){
+			let compareResult: boolean;
+			const oldHash = hashesIndex[nodeHash] as string;
+			const newHash = hash(items.map(item => item.json));
+			if (!oldHash) {
+				compareResult = defaultValue;
+				hashesIndex[nodeHash] = newHash; // first time, we have no previous hash
+			} else {
+				compareResult = newHash !== oldHash;
+			}
 
-		if (compareResult) {
-			hashesIndex[nodeHash] = newHash; // we got a new hash
-			return [returnAllData, returnNoData];
-		} else {
-			return [returnNoData, returnAllData];
+			if (compareResult) {
+				hashesIndex[nodeHash] = newHash; // we got a new hash
+				return [returnAllData, returnNoData];
+			} else {
+				return [returnNoData, returnAllData];
+			}
+		}else{
+			let compareResult: boolean;
+			const oldHash = hashesIndex[nodeHash] as string;
+			const newHash = hash(items.map(item => item.json));
+			var now = compare as string;
+			var last = "null";
+			if (!oldHash) {
+				compareResult = defaultValue;
+				hashesIndex[nodeHash] = newHash; // first time, we have no previous hash
+				last = compare as string;
+			} else {
+		
+				compareResult = now !== last;
+			}
+			
+			if(compareResult){
+				hashesIndex[nodeHash] = newHash; // we got a new hash
+				now = last;
+				return [returnAllData, returnNoData];
+			}else{
+				return [returnNoData, returnAllData];
+			}
+
+		
 		}
+		
 	}
+
 }
