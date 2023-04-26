@@ -40,14 +40,14 @@ export class Changed implements INodeType {
 				name: 'compare',
 				type: 'string',
 				required: true,
-				default: '',
+				default: 'test',
 				description: 'Spcific items in the feed to compare changes, default will compare every item.',
 			},
 		],
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-		var compare = this.getNodeParameter('compare',0) as string;
+		var compare = this.getNodeParameter('compare') as string;
 		const items:INodeExecutionData[] = this.getInputData();
 		let returnAllData:INodeExecutionData[] = items;
 		const returnNoData: INodeExecutionData[] = [];
@@ -80,15 +80,15 @@ export class Changed implements INodeType {
 			hashesIndex[nodeHash] = newHash; // first time, we have no previous hash
 			
 		} else {
-			compareResult = oldHash.includes(compare);
-			if(!compareResult){
-				hashesIndex[nodeHash] = newHash; // we got a new hash
-				return [returnAllData, returnNoData];
-			}else{
-				return [returnNoData, returnAllData];
-				}
+			compareResult = !oldHash.includes(compare);
+			
 		}
-		return [returnNoData, returnAllData];	
+		if(compareResult){
+			hashesIndex[nodeHash] = newHash; // we got a new hash
+			return [returnAllData, returnNoData];
+		}else{
+			return [returnNoData, returnAllData];
+			}
 	
 
 		
