@@ -6,10 +6,11 @@ import {
 	IWorkflowMetadata,
 	INode, IDataObject,
 } from 'n8n-workflow';
+import { getNodeWebhookPath } from 'n8n-workflow/dist/src/NodeHelpers';
 import { stringify } from 'querystring';
 
 const hash = require('object-hash');
-
+declare var old: string;
 export class Changed implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Has Changed',
@@ -38,8 +39,8 @@ export class Changed implements INodeType {
 				displayName: 'Compared Input',
 				name: 'compare',
 				type: 'string',
-				required: false,
-				default: 'all',
+				required: true,
+				default: '',
 				description: 'Spcific items in the feed to compare changes, default will compare every item.',
 			},
 		],
@@ -68,44 +69,25 @@ export class Changed implements INodeType {
 		staticData.hashesIndex = staticData.hashesIndex || {};
 		const hashesIndex = staticData.hashesIndex as IDataObject;
 
-		if(compare == 'all'){
-			let compareResult: boolean;
-			const oldHash = hashesIndex[nodeHash] as string;
-			const newHash = hash(items.map(item => item.json));
-			if (!oldHash) {
-				compareResult = defaultValue;
-				hashesIndex[nodeHash] = newHash; // first time, we have no previous hash
-			} else {
-				compareResult = newHash !== oldHash;
-			}
-
-			if (compareResult) {
-				hashesIndex[nodeHash] = newHash; // we got a new hash
-				return [returnAllData, returnNoData];
-			} else {
-				return [returnNoData, returnAllData];
-			}
-		}else{
-			let compareResult: boolean;
-			const oldHash = hashesIndex[nodeHash] as string;
-			const newHash = hash(items.map(item => item.json));
-			var now = compare as string;
-			var last = "null";
-			if (!oldHash) {
-				compareResult = defaultValue;
-				hashesIndex[nodeHash] = newHash; // first time, we have no previous hash
-				last = compare as string;
-			} else {
 		
-				compareResult = now !== last;
-			}
+		let compareResult: boolean;
+		const oldHash = hashesIndex[nodeHash] as string;
+		const newHash = hash(items.map(item => item.json));
+		var now = compare as string;
+		if (!oldHash) {
+			compareResult = defaultValue;
+			hashesIndex[nodeHash] = newHash; // first time, we have no previous hash
+			old = compare as string;
+		} else {
+			compareResult = now !== old;
+		}
 			
-			if(compareResult){
-				hashesIndex[nodeHash] = newHash; // we got a new hash
-				now = last;
-				return [returnAllData, returnNoData];
-			}else{
-				return [returnNoData, returnAllData];
+		if(compareResult){
+			hashesIndex[nodeHash] = newHash; // we got a new hash
+			now = old;
+			return [returnAllData, returnNoData];
+		}else{
+			return [returnNoData, returnAllData];
 			}
 
 		
@@ -113,4 +95,3 @@ export class Changed implements INodeType {
 		
 	}
 
-}
