@@ -91,7 +91,6 @@ export class Changed implements INodeType {
 		return [returnNoData, returnAllData];	
 	
 
-		
 		}
 		
 	}

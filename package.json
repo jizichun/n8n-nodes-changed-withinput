@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-changed-withinput",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": false,
   "description": "n8n node to detect if something changed between the current execution and the previous one.",
   "license": "MIT",
