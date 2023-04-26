@@ -10,7 +10,7 @@ import { getNodeWebhookPath } from 'n8n-workflow/dist/src/NodeHelpers';
 import { stringify } from 'querystring';
 
 const hash = require('object-hash');
-declare var old: string;
+
 export class Changed implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Has Changed',
@@ -47,7 +47,7 @@ export class Changed implements INodeType {
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-		const compare = this.getNodeParameter('compare',0);
+		var compare = this.getNodeParameter('compare',0) as string;
 		const items:INodeExecutionData[] = this.getInputData();
 		let returnAllData:INodeExecutionData[] = items;
 		const returnNoData: INodeExecutionData[] = [];
@@ -73,16 +73,16 @@ export class Changed implements INodeType {
 		let compareResult: boolean;
 		const oldHash = hashesIndex[nodeHash] as string;
 		const newHash = hash(items.map(item => item.json));
-		var now = compare as string;
+		
+		
 		if (!oldHash) {
 			compareResult = defaultValue;
 			hashesIndex[nodeHash] = newHash; // first time, we have no previous hash
-			old = compare as string;
+			
 		} else {
-			compareResult = now != old;
-			if(compareResult){
+			compareResult = oldHash.includes(compare);
+			if(!compareResult){
 				hashesIndex[nodeHash] = newHash; // we got a new hash
-				now = old;
 				return [returnAllData, returnNoData];
 			}else{
 				return [returnNoData, returnAllData];
@@ -91,7 +91,8 @@ export class Changed implements INodeType {
 		return [returnNoData, returnAllData];	
 	
 
-		}
+		
+}
 		
 	}
 
