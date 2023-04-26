@@ -80,15 +80,16 @@ export class Changed implements INodeType {
 			old = compare as string;
 		} else {
 			compareResult = now != old;
+			if(compareResult){
+				hashesIndex[nodeHash] = newHash; // we got a new hash
+				now = old;
+				return [returnAllData, returnNoData];
+			}else{
+				return [returnNoData, returnAllData];
+				}
 		}
-			
-		if(compareResult){
-			hashesIndex[nodeHash] = newHash; // we got a new hash
-			now = old;
-			return [returnAllData, returnNoData];
-		}else{
-			return [returnNoData, returnAllData];
-			}
+		return [returnNoData, returnAllData];	
+	
 
 		
 		}
