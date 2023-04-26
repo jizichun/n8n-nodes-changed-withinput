@@ -79,7 +79,7 @@ export class Changed implements INodeType {
 			hashesIndex[nodeHash] = newHash; // first time, we have no previous hash
 			old = compare as string;
 		} else {
-			compareResult = now !== old;
+			compareResult = now != old;
 		}
 			
 		if(compareResult){
